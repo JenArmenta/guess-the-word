@@ -3,32 +3,41 @@ const guessedLettersElement = document.querySelector(".guessed-letters");
 const guessLetterButton = document.querySelector(".guess");
 const letterInput = document.querySelector(".letter");
 const wordInProgress = document.querySelector(".word-in-progress");
-const remaining = document.querySelector(".remaining");
-const remainingSpan = document.querySelector(".remaining span");
+const remainingGuessesElement = document.querySelector(".remaining");
+const remainingGuessesSpan = document.querySelector(".remaining span");
 const message = document.querySelector(".message");
 const playAgainButton = document.querySelector(".play-again");
 
 //Create another global variable called word and give it the value of "magnolia". 
 //Magnolia is your starting word to test out the game until you fetch words from a hosted file in a later step.
-const word = "magnolia";
+let word = "magnolia";
 const guessedLetters = [];
+let = remainingGuesses = 8;
+
+const getWord = async function () {
+    const response = await
+    fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
+    const words = await response.text();
+    const wordArray = words.split("\n");
+    const randomIndex = Math.floor(Math.random() * wordArray.length);
+    word = wordArray[randomIndex].trim();
+    placeholder(word);
+};
+
+getWord();
 
 //Write a Function to Add Placeholders for Each Letter.
 //Create and name a function to update the paragraph’s innerText for the “words-in-progress” 
 //element with circle symbols (●) to represent each letter in the word. 
 //The symbols will stay on the screen until the correct letter is guessed (in a future step). 
-
-
 const placeholder = function (word) {
     const placeholderLetters = [];
     for (const letter of word) {
-      console.log(letter);
+      //console.log(letter);
       placeholderLetters.push("●");
     }
     wordInProgress.innerText = placeholderLetters.join("");
 };
-//Call the function and pass it the word variable as the argument. 
-placeholder(word);
 
 //Add an event listener for when a player clicks the Guess button. 
 //In the callback function, add a parameter for the event: e.
@@ -54,7 +63,6 @@ guessLetterButton.addEventListener("click", function (e) {
 //Check if input in empty.
 //Check if they entered more than one letter.
 //check if they’ve entered a character that doesn’t match the regular expression pattern. 
-
 const validateInput = function (input) {
     const acceptedLetter = /[a-zA-Z]/;
     if (input.length === 0) {
@@ -75,6 +83,7 @@ const makeGuess = function (guess) {
     } else {
         guessedLetters.push(guess);
         console.log (guessedLetters);
+        updateGuessesRemaining(guess);
         showGuessedLetters();
         updateWordInProgress(guessedLetters);
     }
@@ -102,6 +111,24 @@ const updateWordInProgress = function (guessedLetters) {
     }
     wordInProgress.innerText = revealWord.join("");
     checkIfWin();
+};
+
+const updateGuessesRemaining = function (guess) {
+    const upperWord = word.toUpperCase();
+    if (!upperWord.includes(guess)) {
+        message.innerText = `So sorry, the word has no ${guess}.`;
+        remainingGuesses -= 1;
+    } else {
+        message.innerText = `Good guess! The word does have the letter ${guess}.`;
+    }
+
+    if (remainingGuesses === 0) {
+        message.innerHTML = `Game over! The word was <span class="highlight">${word}</span>.`;
+    } else if (remainingGuesses === 1) {
+        remainingGuessesSpan.innerText = `${remainingGuesses} guess`;
+    } else {
+        remainingGuessesSpan.innerText = `${remainingGuesses} guesses`;
+    }
 };
 
 const checkIfWin = function () {
